@@ -1,0 +1,100 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ftps
+  labels:
+    app: ftps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ftps
+  template:
+    metadata:
+      labels:
+        app: ftps
+    spec:
+      containers:
+      - imagePullPolicy: Never
+        image: ftps_img
+        name: ftps
+        livenessProbe:
+          exec:
+            command:
+            - sh
+            - healthy.sh
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        ports:
+        - containerPort: 21
+          name: "ftps"
+        - containerPort: 2100
+          name: "port1"
+        - containerPort: 2101
+          name: "port2"
+        - containerPort: 2102
+          name: "port3"
+        - containerPort: 2103
+          name: "port4"
+        - containerPort: 2104
+          name: "port5"
+        - containerPort: 2105
+          name: "port6"
+        - containerPort: 2106
+          name: "port7"
+        - containerPort: 2107
+          name: "port8"
+        - containerPort: 2108
+          name: "port9"
+        - containerPort: 2109
+          name: "port10"
+        - containerPort: 2110
+          name: "port11"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ftps
+  annotations:
+    metallb.universe.tf/allow-shared-ip: shared
+spec:
+  selector:
+    app: ftps
+  ports:
+    -  name: ftps
+       port: 21
+       targetPort: 21
+    -  name: port1
+       port: 2100
+       targetPort: 2100
+    -  name: port2
+       port: 2101
+       targetPort: 2101
+    -  name: port3
+       port: 2102
+       targetPort: 2102
+    -  name: port4
+       port: 2103
+       targetPort: 2103
+    -  name: port5
+       port: 2104
+       targetPort: 2104
+    -  name: port6
+       port: 2105
+       targetPort: 2105
+    -  name: port7
+       port: 2106
+       targetPort: 2106
+    -  name: port8
+       port: 2107
+       targetPort: 2107
+    -  name: port9
+       port: 2108
+       targetPort: 2108
+    -  name: port10
+       port: 2109
+       targetPort: 2109
+    -  name: port11
+       port: 2110
+       targetPort: 2110
+  type: LoadBalancer

@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: influxdb
+spec:
+  selector:
+    matchLabels:
+      app: influxdb
+  template:
+    metadata:
+      labels:
+        app: influxdb
+    spec:
+      containers:
+      - imagePullPolicy: Never
+        image: influxdb_img
+        name: influxdb
+        livenessProbe:
+          exec:
+            command:
+            - sh
+            - healthy.sh
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        ports:
+        - containerPort: 8086
+          name: influxdb
+        volumeMounts:
+            - mountPath: "/root/.influxdb"
+              name: influxdb
+            - mountPath: "/var/run/docker.sock"
+              name: docker-sock
+      volumes:
+        - name: influxdb
+          persistentVolumeClaim:
+            claimName: influxdb
+        - name: docker-sock
+          hostPath:
+            path: /var/run/docker.sock
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: influxdb
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: influxdb
+  annotations:
+    metallb.universe.tf/allow-shared-ip: shared
+spec:
+  selector:
+    app: influxdb
+  ports:
+  - name: influxdb
+    port: 8086
+    targetPort: 8086
+  type: ClusterIP
+  clusterIP: 10.102.129.163
